@@ -6,7 +6,7 @@
         <el-input v-model="form.username" placeholder="请输入用户名"></el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
-        <el-input v-model="form.password" placeholder="请输入密码"></el-input>
+        <el-input v-model="form.password" placeholder="请输入密码" @keyup.enter.native="login('form')"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="login('form')">登陆</el-button>
@@ -17,8 +17,6 @@
 </template>
 
 <script>
-import axios from 'axios'
-
 export default {
   data() {
     return {
@@ -42,18 +40,18 @@ export default {
     login(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          axios({
-            url: 'http://localhost:8888/api/private/v1/login',
+          this.axios({
+            url: 'login',
             method: 'post',
             data: this.form
           }).then(res => {
-            if (res.data.meta.status === 200) {
-              this.$message.success(res.data.meta.msg)
-              localStorage.setItem('token', res.data.data.token)
+            if (res.meta.status === 200) {
+              this.$message.success(res.meta.msg)
+              localStorage.setItem('token', res.data.token)
               this.$router.push('/home')
             } else {
               this.$message({
-                message: res.data.meta.msg,
+                message: res.meta.msg,
                 type: 'error'
               })
             }
