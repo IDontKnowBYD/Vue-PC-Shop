@@ -160,8 +160,8 @@ export default {
     this.setCurrentPage()
   },
   methods: {
-    setCurrentPage() {
-      this.axios({
+    async setCurrentPage() {
+      let res = await this.axios({
         url: 'users',
         method: 'get',
         params: {
@@ -169,13 +169,12 @@ export default {
           pagenum: this.currentPage,
           pagesize: this.pageSize
         }
-      }).then(res => {
-        if (res.meta.status === 200) {
-          // console.log(res.data.users)
-          this.tableData = res.data.users
-          this.total = res.data.total
-        }
       })
+      if (res.meta.status === 200) {
+        // console.log(res.data.users)
+        this.tableData = res.data.users
+        this.total = res.data.total
+      }
     },
     handleSizeChange(val) {
       this.pageSize = val
@@ -191,34 +190,35 @@ export default {
       this.setCurrentPage()
     },
     // 状态改变
-    stateChange(val) {
+    async stateChange(val) {
       // console.log(val)
       let id = val.id
       let type = val.mg_state
-      this.axios({
+      let res = await this.axios({
         url: `users/${id}/state/${type}`,
         method: 'put'
-      }).then(res => {
-        if (res.meta.status === 200) {
-          this.$message({
-            message: res.meta.msg,
-            type: 'success'
-          })
-        }
       })
+      if (res.meta.status === 200) {
+        this.$message({
+          message: res.meta.msg,
+          type: 'success'
+        })
+      }
     },
     // 添加用户
     addUser(formName) {
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate(async valid => {
         if (valid) {
-          this.axios({
+          await this.axios({
             url: 'users',
             method: 'post',
             data: this.addForm
-          }).then(res => {
-            this.addDialogVisible = false
-            this.$refs[formName].resetFields()
           })
+          this.total++
+          this.currentPage = Math.ceil(this.total / this.pageSize)
+          this.setCurrentPage()
+          this.addDialogVisible = false
+          this.$refs[formName].resetFields()
         } else {
           console.log('error submit!!')
           return false
@@ -226,36 +226,34 @@ export default {
       })
     },
     // 删除用户
-    delUser(id) {
-      this.$confirm('你确定要删除这个用户吗？', '警告', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          this.axios({
-            url: `users/${id}`,
-            method: 'delete'
-          }).then(res => {
-            if (res.meta.status === 200) {
-              if ((this.tableData.length = 1 && this.currentPage > 1)) {
-                this.currentPage--
-              }
-              this.setCurrentPage()
+    async delUser(id) {
+      try {
+        await this.$confirm('你确定要删除这个用户吗？', '警告', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        let res = await this.axios({
+          url: `users/${id}`,
+          method: 'delete'
+        })
+        if (res.meta.status === 200) {
+          if (this.tableData.length === 1 && this.currentPage > 1) {
+            this.currentPage--
+          }
+          this.setCurrentPage()
 
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              })
-            }
-          })
-        })
-        .catch(() => {
           this.$message({
-            type: 'info',
-            message: '已取消删除'
+            type: 'success',
+            message: '删除成功!'
           })
+        }
+      } catch (e) {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
         })
+      }
     },
     // 修改用户
     // 打开修改框
@@ -268,25 +266,24 @@ export default {
     },
     // 进行修改
     changeUser() {
-      this.$refs.changeForm.validate(valid => {
+      this.$refs.changeForm.validate(async valid => {
         if (!valid) return false
 
-        this.axios({
+        let res = await this.axios({
           url: `users/${this.changeForm.id}`,
           method: 'put',
           data: this.changeForm
-        }).then(res => {
-          if (res.meta.status === 200) {
-            this.setCurrentPage()
-
-            this.$message({
-              type: 'success',
-              message: '修改成功!'
-            })
-
-            this.changeDialogVisible = false
-          }
         })
+        if (res.meta.status === 200) {
+          this.setCurrentPage()
+
+          this.$message({
+            type: 'success',
+            message: '修改成功!'
+          })
+
+          this.changeDialogVisible = false
+        }
       })
     }
   }
@@ -294,11 +291,6 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.el-breadcrumb {
-  height: 30px;
-  line-height: 30px;
-}
-
 .el-input {
   width: 400px;
   margin-bottom: 10px;

@@ -38,24 +38,23 @@ export default {
   },
   methods: {
     login(formName) {
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate(async valid => {
         if (valid) {
-          this.axios({
+          let res = await this.axios({
             url: 'login',
             method: 'post',
             data: this.form
-          }).then(res => {
-            if (res.meta.status === 200) {
-              this.$message.success(res.meta.msg)
-              localStorage.setItem('token', res.data.token)
-              this.$router.push('/home')
-            } else {
-              this.$message({
-                message: res.meta.msg,
-                type: 'error'
-              })
-            }
           })
+          if (res.meta.status === 200) {
+            this.$message.success(res.meta.msg)
+            localStorage.setItem('token', res.data.token)
+            this.$router.push('/home')
+          } else {
+            this.$message({
+              message: res.meta.msg,
+              type: 'error'
+            })
+          }
         } else {
           console.log('error submit!!')
           return false
