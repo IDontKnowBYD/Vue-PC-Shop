@@ -9,6 +9,10 @@ import '@/assets/common.css'
 
 import axios from 'axios'
 
+import ElTreeGrid from 'element-tree-grid'
+
+Vue.component(ElTreeGrid.name, ElTreeGrid)
+
 Vue.use(ElementUI)
 
 // axios
