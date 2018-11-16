@@ -11,6 +11,20 @@ import axios from 'axios'
 
 import ElTreeGrid from 'element-tree-grid'
 
+import moment from 'moment'
+
+import VueQuillEditor from 'vue-quill-editor'
+
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
+Vue.use(VueQuillEditor)
+
+Vue.filter('dateFilter', (input, format = 'YYYY-MM-DD HH:mm:ss') => {
+  return moment(input * 1000).format(format)
+})
+
 Vue.component(ElTreeGrid.name, ElTreeGrid)
 
 Vue.use(ElementUI)
