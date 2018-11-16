@@ -5,7 +5,7 @@
       <el-step title="步骤 2" description="商品图片"></el-step>
       <el-step title="步骤 3" description="商品内容"></el-step>
     </el-steps>
-     <el-tabs tab-position="left" v-model="activeName" @tab-click="handleClick">
+    <el-tabs tab-position="left" v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="基本信息" name="basic">
          <el-form :model="addForm" label-width="80px">
           <el-form-item label="商品名称">
